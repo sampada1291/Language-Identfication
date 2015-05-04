@@ -37,7 +37,15 @@ object Test {
   }
   
   def main(args: Array[String]) {
-    load_files("/home/sampada/Downloads/eng_wikipedia_2010_10K-text/eng_wikipedia_2010_10K-sentences.txt","/home/sampada/Downloads/NLP/english.txt")
-    load_files("/home/sampada/Downloads/fra_wikipedia_2010_10K-text/fra_wikipedia_2010_10K-sentences.txt","/home/sampada/Downloads/NLP/french.txt")
+    
+    val d = new File("/home/sampada/Downloads/Input/")
+    val files=d.listFiles.filter(_.isFile).toList
+    for (file <- files)
+    {
+      val temp=file.toString.split("/").last.split("_")(0)+".txt"
+      load_files(file.toString,temp)
+    }
+    //load_files("/home/sampada/Downloads/eng_wikipedia_2010_10K-text/eng_wikipedia_2010_10K-sentences.txt","/home/sampada/Downloads/NLP/english.txt")
+    //load_files("/home/sampada/Downloads/fra_wikipedia_2010_10K-text/fra_wikipedia_2010_10K-sentences.txt","/home/sampada/Downloads/NLP/french.txt")
   }
 }
