@@ -6,10 +6,13 @@ import java.io.File
  * @author sampada
  */
 class lang_id {
+  //store the data from the files into counts hashmap 
   val counts= scala.collection.mutable.HashMap[String, collection.mutable.ListBuffer[String]]()
+  //probabilities variable is a hashmap with the probabilities per language
   val probabilities=scala.collection.mutable.HashMap[String,Double]()
   
-  def load_input() = {  
+  def load_input() = {
+    //read each file in the directory and store the 6-gram frequencies per language in the hashmap 
     val d = new File("/home/sampada/Downloads/NLP/")
     val files=d.listFiles.filter(_.isFile).toList
     for (file <- files)
@@ -26,7 +29,7 @@ class lang_id {
   
   def prediction(test: String) = {
     val input = new StringBuilder()
-    
+    //read the test data and store in a string
     var ip = io.Source.fromFile(test).getLines.toList
     var ip1 = new ListBuffer[String]()
     for (i <- ip)
@@ -38,7 +41,7 @@ class lang_id {
     {
       var temp_map = 0
       val temp = test.substring(k,i)
-      
+      //for each character find it's probability based on the previous 5 characters and use Kneser Ney smoothing for unknown 6-grams
       for ((key,value) <- counts)
       {
         var freq=0
@@ -60,7 +63,7 @@ class lang_id {
     
     var id=""
     var max=0
-    
+    //find the maximum probability and output the corresponding key which specifies the language
     for((key,value) <- probabilities)
       if(value>max)
         id=key
@@ -73,6 +76,7 @@ class lang_id {
 object Classes {
   def main(args: Array[String]) {
     val lid = new lang_id()
+    //load the frequencies from the text files and the call predictor on the test data
     lid.load_input()
     lid.prediction(file_name)
   }
