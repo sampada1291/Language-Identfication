@@ -10,6 +10,7 @@ class lang_id {
   val counts= scala.collection.mutable.HashMap[String, collection.mutable.ListBuffer[String]]()
   //probabilities variable is a hashmap with the probabilities per language
   val probabilities=scala.collection.mutable.HashMap[String,Double]()
+  var n=0
   
   def load_input() = {
     //read each file in the directory and store the 6-gram frequencies per language in the hashmap 
@@ -23,6 +24,7 @@ class lang_id {
       for (i <- lines)
       {
         counts.getOrElseUpdate(temp1, ListBuffer()) += "("+i.substring(0,i.length-2)+","+i.substring(i.length-1)+")"
+        n=i.substring(0,i.length-2).size
       }
     }
   }
@@ -32,18 +34,20 @@ class lang_id {
     //read the test data and store in a string
     var ip = io.Source.fromFile(test).getLines.toList
     var ip1 = new ListBuffer[String]()
+    val d=0.6
     for (i <- ip)
       ip1 += i.mkString.split('\t')(1)
     ip1.addString(input," ")
-    var k = 0
-    var prob = 1.toDouble
-    for (i <- 6 to test.length by 6)
+    //for each language find the probability per key
+    for ((key,value) <- counts)
     {
-      var temp_map = 0
-      val temp = test.substring(k,i)
+      var k = 0
+      var prob = 0.toDouble
       //for each character find it's probability based on the previous 5 characters and use Kneser Ney smoothing for unknown 6-grams
-      for ((key,value) <- counts)
+      for (i <- n to test.length)
       {
+        var temp_map = 0
+        val temp = test.substring(k,i)
         var freq=0
         var flag=false
         for (entry <- counts(key))
@@ -55,10 +59,13 @@ class lang_id {
           }
         }
         temp_map = counts(key).filter(entry => entry.toString.substring(1,6) == temp.substring(0,5)).size
-        prob = prob*((1+freq).toDouble/(temp_map+freq).toDouble)
-        probabilities(key)=prob
+        //val kneser_ney=(d.toDouble/(counts(key).size))*((temp_map).toDouble)/(counts(key).size)
+        //using addition of log of probabilities since the multiplication may cause underflow 
+        if((temp_map).toDouble!=0)
+          prob = prob+math.log10((temp_map).toDouble/(counts(key).size))
+        k += 1
       }
-      k += 6
+      probabilities(key)=prob
     }
     
     var id=""
@@ -72,12 +79,11 @@ class lang_id {
   }
 }
 
-
 object Classes {
   def main(args: Array[String]) {
     val lid = new lang_id()
     //load the frequencies from the text files and the call predictor on the test data
     lid.load_input()
-    lid.prediction(file_name)
+    lid.prediction("/home/sampada/Downloads/eng_wikipedia_2010_10K-text/eng_wikipedia_2010_10K-sentences.txt")
   }
 }

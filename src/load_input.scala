@@ -2,13 +2,22 @@ import scala.io.Source
 import scala.collection.mutable.ListBuffer
 import scala.collection.JavaConversions._
 import java.io._
+import scala.io.StdIn.readLine
 
 object Test {
+  
+  //value of n for n-gram character model
+  var n=0
+  
   def load_files(file1: String, file2: String) = {
     //initialize map for storing counts of all 6-grams per language
     var counts = Map[String,Int]()
     //storing a string with the input converted to the proper format
     val input = new StringBuilder()
+    
+    //get value of n from user
+    print("Enter value of n:")
+    n=readLine().toInt
     
     //get the text from the file (it is in the format of line number,text) and store it in a list
     //this is to remove the line number and store the complete text in a string
@@ -20,11 +29,11 @@ object Test {
     //store the counts of all 6-gram in the counts map per language so there will be a lisbuffer per language with the 6-gram frequencies
     var k = 0
     ip1 = new ListBuffer[String]()
-    for (i <- 6.toInt to input.length-1 by 6)
+    for (i <- n-1 to input.length)
     {
       val temp = input.substring(k,i).toString
       ip1 += temp
-      k += 6
+      k += 1
     }
     counts = ip1.groupBy(w => w).mapValues(_.size)
     
@@ -43,6 +52,7 @@ object Test {
   
   def main(args: Array[String]) {
     //loads all the files in a given directory
+    /**
     val d = new File("/home/sampada/Downloads/Input/")
     val files=d.listFiles.filter(_.isFile).toList
     for (file <- files)
@@ -50,7 +60,8 @@ object Test {
       val temp=file.toString.split("/").last.split("_")(0)+".txt"
       load_files(file.toString,temp)
     }
-    //load_files("/home/sampada/Downloads/eng_wikipedia_2010_10K-text/eng_wikipedia_2010_10K-sentences.txt","/home/sampada/Downloads/NLP/english.txt")
-    //load_files("/home/sampada/Downloads/fra_wikipedia_2010_10K-text/fra_wikipedia_2010_10K-sentences.txt","/home/sampada/Downloads/NLP/french.txt")
+    */
+    load_files("/home/sampada/Downloads/eng_wikipedia_2010_10K-text/eng_wikipedia_2010_10K-sentences.txt","/home/sampada/Downloads/NLP/english.txt")
+    load_files("/home/sampada/Downloads/fra_wikipedia_2010_10K-text/fra_wikipedia_2010_10K-sentences.txt","/home/sampada/Downloads/NLP/french.txt")
   }
 }
