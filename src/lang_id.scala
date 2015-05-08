@@ -34,7 +34,6 @@ class lang_id {
     //read the test data and store in a string
     var ip = io.Source.fromFile(test).getLines.toList
     var ip1 = new ListBuffer[String]()
-    val d=0.6
     for (i <- ip)
       ip1 += i.mkString.split('\t')(1)
     ip1.addString(input," ")
@@ -44,38 +43,45 @@ class lang_id {
       var k = 0
       var prob = 0.toDouble
       //for each character find it's probability based on the previous 5 characters and use Kneser Ney smoothing for unknown 6-grams
-      for (i <- n to test.length)
+      for (i <- n to input.length by 1)
       {
-        var temp_map = 0
-        val temp = test.substring(k,i)
-        var freq=0
-        var flag=false
+        val temp = input.substring(k,i)
+        var freq1=0
+        var flag1=false
+        var freq2=0
+        var flag2=false
         for (entry <- counts(key))
         {
-          if(entry.toString.substring(1,7) == temp)
+          if(entry.toString.substring(1,7) == temp && (entry.length-2)==n)
           {
-            freq=entry(entry.length-2)
-            flag=true
+            freq1=entry(entry.length-2)
+            flag1=true
+          }
+          if(entry.toString.substring(1,6) == temp && (entry.length-2)==(n-1))
+          {
+            freq2=entry(entry.length-2)
+            flag2=true
           }
         }
-        temp_map = counts(key).filter(entry => entry.toString.substring(1,6) == temp.substring(0,5)).size
-        //val kneser_ney=(d.toDouble/(counts(key).size))*((temp_map).toDouble)/(counts(key).size)
-        //using addition of log of probabilities since the multiplication may cause underflow 
-        if((temp_map).toDouble!=0)
-          prob = prob+math.log10((temp_map).toDouble/(counts(key).size))
+        
+        prob = prob+math.log((1+freq1).toDouble/(freq2+counts(key).size).toDouble)
         k += 1
       }
       probabilities(key)=prob
     }
     
-    var id=""
-    var max=0
+    var (id, max) = probabilities.head
     //find the maximum probability and output the corresponding key which specifies the language
     for((key,value) <- probabilities)
+    {
+      println(key,value)
       if(value>max)
+      {
         id=key
-        
-    print("The text is in $id")
+        max=value
+      }
+    }
+    print("The text is in %s.",id)
   }
 }
 
@@ -84,6 +90,6 @@ object Classes {
     val lid = new lang_id()
     //load the frequencies from the text files and the call predictor on the test data
     lid.load_input()
-    lid.prediction("/home/sampada/Downloads/eng_wikipedia_2010_10K-text/eng_wikipedia_2010_10K-sentences.txt")
+    lid.prediction("/home/sampada/Downloads/test.txt")
   }
 }

@@ -6,8 +6,9 @@ import scala.io.StdIn.readLine
 
 object Test {
   
-  //value of n for n-gram character model
-  var n=0
+  //get value of n from user
+  print("Enter value of n:")
+  val n=readLine().toInt
   
   def load_files(file1: String, file2: String) = {
     //initialize map for storing counts of all 6-grams per language
@@ -15,26 +16,25 @@ object Test {
     //storing a string with the input converted to the proper format
     val input = new StringBuilder()
     
-    //get value of n from user
-    print("Enter value of n:")
-    n=readLine().toInt
-    
     //get the text from the file (it is in the format of line number,text) and store it in a list
     //this is to remove the line number and store the complete text in a string
-    var ip = io.Source.fromFile(file1).getLines.toList
+    var ip = io.Source.fromFile(file1)("UTF-8").getLines.toList
     var ip1 = new ListBuffer[String]()
     for (i <- ip)
       ip1 += i.mkString.split('\t')(1)
     ip1.addString(input," ")
     //store the counts of all 6-gram in the counts map per language so there will be a lisbuffer per language with the 6-gram frequencies
-    var k = 0
     ip1 = new ListBuffer[String]()
-    for (i <- n-1 to input.length)
+    for (g <- 1 to (n+1) by 1){
+    //store all unigrams to n-grams for given input text
+    var k = 0
+    for (i <- g to input.length)
     {
       val temp = input.substring(k,i).toString
       ip1 += temp
       k += 1
-    }
+    }}
+    
     counts = ip1.groupBy(w => w).mapValues(_.size)
     
     val counts_list = counts.toList
@@ -61,6 +61,7 @@ object Test {
       load_files(file.toString,temp)
     }
     */
+    //these are examples of how to give inputs to the load_input method
     load_files("/home/sampada/Downloads/eng_wikipedia_2010_10K-text/eng_wikipedia_2010_10K-sentences.txt","/home/sampada/Downloads/NLP/english.txt")
     load_files("/home/sampada/Downloads/fra_wikipedia_2010_10K-text/fra_wikipedia_2010_10K-sentences.txt","/home/sampada/Downloads/NLP/french.txt")
   }
